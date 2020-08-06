@@ -38,23 +38,28 @@ lotus.on('message', msg => {
         }
         channelRate.add(msg.author.id);
         if(channelRate.size() > rateLimit) {
-            msg.channel.setRateLimitPerUser(slowModeTimer * severity, `Lotus has detected a peculiar spike in activity. Slow mode activated. Severity level: ${severity}`);
+            msg.channel.setRateLimitPerUser(slowModeTimer * severity, `Lotus has detected a peculiar spike in activity. Severity level: ${severity}`);
             severity ++;
             return;
         } else {
             severity > 1 ? severity-- : null
+            msg.channel.setRateLimitPerUser(slowModeTimer * severity, `Lotus has increased the rate limit per user. Severity level: ${severity}`);
         }
         guildRateSet.set(msg.channel.id, channelRate);
     }
     if(msg.mentions.users.size > 0) {
         msg.mentions.users.map( (user) => {
             if(user.bot) {
-                if(user.id == lotus.user.client.id) {
+                if(user.id == lotus.user.id) {
                     try {
-                        // Rate limiting check
-                        // Sliding window search text for predefined commands.
-                        // moderation: kick, ban, mute, timeout (no text chat/reactions), disable video, mention
-                        //
+                        // Command Rate limiting check
+                        let messageArray = msg.content.split(" ");
+                        messageArray.map( (word) => {
+                            if(lotus.commands.has(word)) {
+                                lotus.commands.get(word).execute(msg, messageArray);
+                                return;
+                            } 
+                        });
                     } catch ( error ) {
                         //error logging here. rolling log file to write to.
                     }
