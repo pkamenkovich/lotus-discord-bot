@@ -25,7 +25,7 @@ lotus.on('message', msg => {
     if(guildRateSet.get(msg.channel.id) != null) {
         guildRateSet.add(msg.channel.id, new Set())
     }
-    if(!msg.member.hasPermission("ADMINISTRATOR")) {
+    if(!msg.author.hasPermission("ADMINISTRATOR")) {
         //If the user is not an admin, we should start tracking the channel rate.
         let channelRate = guildRateSet.get(msg.channel.id);
         
@@ -62,6 +62,7 @@ lotus.on('message', msg => {
                         });
                     } catch ( error ) {
                         //error logging here. rolling log file to write to.
+                        console.log(error);
                     }
                 }
             }
